@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"system-info-mcp-server/server"
+	"github.com/franciscocunha55/mcp-server-training/server"
 	"time"
 )
 
