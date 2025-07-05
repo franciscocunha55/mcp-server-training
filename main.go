@@ -7,8 +7,7 @@ import (
 )
 
 func main() {
-	// This is the entry point of the application.
-	// You can initialize your application here.
+
 	fmt.Println("Hello World")
 
 	mcpServer, err := server.NewMCPSystemInfoServer("MCPServer-test", "1.0.0", 8080, []string{}, true, time.Now(), map[string]string{"configKey": "configValue"})
