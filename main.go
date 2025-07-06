@@ -2,17 +2,24 @@ package main
 
 import (
 	"fmt"
-	"github.com/franciscocunha55/mcp-server-training/server"
+	serverTest "github.com/franciscocunha55/mcp-serverTest-training/serverTest"
+
+	"context"
+
+	"log"
 	"time"
+
+	"github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 )
 
 func main() {
 
 	fmt.Println("Hello World")
 
-	mcpServer, err := server.NewMCPSystemInfoServer("MCPServer-test", "1.0.0", 8080, []string{}, true, time.Now(), map[string]string{"configKey": "configValue"})
+	mcpServer, err := serverTest.NewMCPSystemInfoServer("MCPServer-test", "1.0.0", 8080, []string{}, true, time.Now(), map[string]string{"configKey": "configValue"})
 	if err != nil {
-		fmt.Println("Error creating MCP server:", err)
+		fmt.Println("Error creating MCP serverTest:", err)
 		return
 	}
 	fmt.Println(mcpServer.GetInfo())
@@ -38,7 +45,7 @@ func main() {
 	}
 
 	if err := mcpServer.Stop(); err != nil {
-		fmt.Println("Error stopping server:", err)
+		fmt.Println("Error stopping serverTest:", err)
 	} else {
 		fmt.Println("Server stopped successfully")
 	}
@@ -48,4 +55,35 @@ func main() {
 	} else {
 		fmt.Printf("Server Status: %s\n", status)
 	}
+
+	serverMcp := server.NewMcpServer(
+		"Hello World",
+		"1.0.0",
+		server.WithToolCapabilities(false),
+	)
+
+	tool := mcp.NewTool("hello_world",
+		mcp.WithDescription("Say hello to someone"),
+		mcp.WithString("name",
+			mcp.Required(),
+			mcp.Description("Name of the person to greet"),
+		),
+	)
+
+	serverMcp.AddTool(tool, helloHandler)
+
+	// Start the stdio server
+	if err := server.ServeStdio(s); err != nil {
+		fmt.Printf("Server error: %v\n", err)
+	}
+
+}
+
+func helloHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	name, err := request.RequireString("name")
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return mcp.NewToolResultText(fmt.Sprintf("Hello, %s!", name)), nil
 }
