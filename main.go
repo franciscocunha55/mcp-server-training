@@ -37,6 +37,13 @@ func getSystemMemoryInfoHandler(ctx context.Context, request mcp.CallToolRequest
 	
 }
 
+func getSystemCPUInfoHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error){
+	cpuInformation := fmt.Sprintf("Number of logical CPUs: %d, Operating System: %s, Architecture: %s, Go Version: %s, Compiler: %s, , Max OS threads: %d", 
+		runtime.NumCPU(), runtime.GOOS, runtime.GOARCH, runtime.Version(), runtime.Compiler, runtime.GOMAXPROCS(0))
+	
+	return mcp.NewToolResultText(cpuInformation), nil	
+}
+
 func main() {
 
 	serverMcp := server.NewMCPServer(
@@ -53,14 +60,20 @@ func main() {
 		),
 	)
 
-	toolGetSystemInfo := mcp.NewTool("get_system_memory_info",
+	toolGetSystemMemoryInfo := mcp.NewTool("get_system_memory_info",
 		mcp.WithDescription("Get detailed system memory usage including allocated bytes, heap objects, and garbage collection stats"),
-,
+
 	)	
+
+	toolGetSystemCPUInfo := mcp.NewTool("get_system_cpu_info",
+		mcp.WithDescription("Get detailed system CPU information including number of logical CPUs, OS, architecture, Go version and compiler"),
+	)
 
 	
 	serverMcp.AddTool(toolHelloWorld, helloHandler)
-	serverMcp.AddTool(toolGetSystemInfo, getSystemMemoryInfoHandler)
+	serverMcp.AddTool(toolGetSystemMemoryInfo, getSystemMemoryInfoHandler)
+	serverMcp.AddTool(toolGetSystemCPUInfo, getSystemCPUInfoHandler)
+
 
 	// Start the stdio server
 	if err := server.ServeStdio(serverMcp); err != nil {
